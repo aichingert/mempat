@@ -5,7 +5,7 @@ type Coord struct {
     y int
 }
 
-type Seq struct {
+type Game struct {
     seq []Coord
     current int
 }
@@ -15,6 +15,6 @@ type Seq struct {
 // 1: Being able to progress in the sequence by pressing a button
 // 2: Create the next element in the sequence if you reached the last one
 
-func (s *Seq) Check() bool {
-    return len(s.seq) == s.current
+func (g *Game) Check() bool {
+    return len(g.seq) == g.current
 }
