@@ -1,4 +1,5 @@
-let socket = new WebSocket("ws://127.0.0.1:8080/ws");
+console.log(document.location.host)
+let socket = new WebSocket("ws://" + document.location.host + "/ws");
 
 console.log("Attempting Connection...");
 
@@ -15,7 +16,13 @@ socket.onclose = event => {
 socket.onerror = error => { console.log("Socket Error: ", error); };
 
 socket.onmessage = function(evt) {
-    console.log(message)
+    console.log(evt)
+
+    let div = document.createElement("div");
+    div.innerHTML = evt.data;
+
+    game.appendChild(div);
+    console.log(evt.data);
 }
 
 let game = document.getElementById("game");
@@ -31,6 +38,7 @@ for (let i = 0; i < 4; i++) {
 
         square.addEventListener("click", function() {
             console.log(this.id);
+            socket.send(this.id);
             this.style.backgroundColor = "blue";
         });
 

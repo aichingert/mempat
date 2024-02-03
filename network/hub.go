@@ -1,14 +1,16 @@
 package network
 
-type Hub struct {
-    clients map[*Client]bool
-    broadcast chan []byte
+import "fmt"
 
-    register chan *Client
-    unregister chan *Client
+type Hub struct {
+    clients     map[*Client]bool
+    broadcast   chan []byte
+
+    register    chan *Client
+    unregister  chan *Client
 }
 
-func newHub() *Hub {
+func NewHub() *Hub {
     return &Hub {
         broadcast:  make(chan []byte),
         register:   make(chan *Client),
@@ -17,7 +19,9 @@ func newHub() *Hub {
     }
 }
 
-func (h *Hub) run() {
+func (h *Hub) Run() {
+    fmt.Println("I am running")
+
     for {
         select {
         case client := <-h.register:

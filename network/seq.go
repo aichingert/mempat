@@ -6,8 +6,8 @@ type Coord struct {
 }
 
 type Game struct {
-    seq []Coord
-    current int
+    Seq []Coord
+    Current int
 }
 
 // TODO: Implement the missing logic for this
@@ -16,5 +16,5 @@ type Game struct {
 // 2: Create the next element in the sequence if you reached the last one
 
 func (g *Game) Check() bool {
-    return len(g.seq) == g.current
+    return len(g.Seq) == g.Current
 }

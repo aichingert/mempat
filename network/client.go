@@ -33,6 +33,7 @@ type Client struct {
 }
 
 func (c *Client) readPump() {
+    log.Println("HELLO")
     defer func() {
         c.hub.unregister <- c
         c.conn.Close()
@@ -55,6 +56,7 @@ func (c *Client) readPump() {
 }
 
 func (c *Client) writePump() {
+    log.Println("WHATAIT ")
     ticker := time.NewTicker(pingPeriod)
     defer func() {
         c.conn.Close()
@@ -94,19 +96,20 @@ func (c *Client) writePump() {
     }
 }
 
-func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
-    upgrader.CheckOrigin = func(r *http.Request) bool {
-        return true
-    }
+func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
     conn, err := upgrader.Upgrade(w, r, nil)
     if err != nil {
         log.Println(err)
         return
     }
 
+    log.Println("WHY U FKN LIYING")
     client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+    log.Println("DID YA STOP")
     client.hub.register <- client
+    log.Println("OKAY")
 
+    log.Println("SHOULD DO SMTH???")
     go client.writePump()
     go client.readPump()
 }
