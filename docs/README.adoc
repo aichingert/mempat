@@ -1,0 +1,11 @@
+=  μοτίβα (pattern)
+
+This is a simple websocket written in go to play a pattern memorization game with friends.
+
+== Missing
+
+Currently the game has to be implemented on the server and then the following options are also missing:
+
+* Restart on lose or win
+* Showing the pattern on the start of a new round or new connection maybe (but this could be abused)
+* Proper message sending between client and server
