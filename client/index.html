@@ -7,28 +7,52 @@
     <title>Seq</title>
     <style>
         .game {
+            padding: 5%;
             display: grid;
+            justify-self: horizontal;
+            place-items: center;
         }
 
         .square-row {
             display: flex;
-            margin: 5px;
+            margin: 10px;
         }
 
         .square {
-            margin: 5px;
             display: flex;
-            width: 50px;
-            height: 50px;
-            background: lightblue;
+            margin: 10px;
+            width: 100px;
+            height: 100px;
+            background: rgb(166, 172, 205);
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        body {
+            background: #292D3E;
+        }
+
+        span {
+            font-size: 300%;
+            background: None;
+        }
+
+        h1 {
+            color: rgb(240, 113, 120);
         }
     </style>
   </head>
   <body>
-    <h1>Seq</h1>
+      <div class="header">
+          <span style="color: rgb(137, 221, 255)">&lt;</span>
+          <span style="color: rgb(240, 113, 120)">μοτίβα</span>
+          <span style="color: rgb(137, 221, 255)">/&gt;</span>
+      </div>
 
-    <div id="game" class="game" />
+      <div id="game" class="game"></div>
 
-    <script src="index.js"></script>
+      <script src="index.js"></script>
   </body>
 </html>

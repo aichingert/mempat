@@ -1,4 +1,3 @@
-console.log(document.location.host)
 let socket = new WebSocket("ws://" + document.location.host + "/ws");
 
 console.log("Attempting Connection...");
@@ -39,7 +38,7 @@ for (let i = 0; i < 4; i++) {
         square.addEventListener("click", function() {
             console.log(this.id);
             socket.send(this.id);
-            this.style.backgroundColor = "blue";
+            this.style.backgroundColor = "rgb(195, 232, 141)";
         });
 
         row.appendChild(square);
