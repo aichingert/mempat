@@ -33,14 +33,15 @@ type Client struct {
 }
 
 func (c *Client) readPump() {
-    log.Println("HELLO")
     defer func() {
         c.hub.unregister <- c
         c.conn.Close()
     }()
-	c.conn.SetReadLimit(maxMessageSize)
-	c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+
+    c.conn.SetReadLimit(maxMessageSize)
+    c.conn.SetReadDeadline(time.Now().Add(pongWait))
+    c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+
     for {
         _, message, err := c.conn.ReadMessage()
         if err != nil {
@@ -50,13 +51,14 @@ func (c *Client) readPump() {
             break
         }
 
+        log.Println("READING: ", message);
+
         message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
         c.hub.broadcast <- message
     }
 }
 
 func (c *Client) writePump() {
-    log.Println("WHATAIT ")
     ticker := time.NewTicker(pingPeriod)
     defer func() {
         c.conn.Close()
@@ -65,6 +67,7 @@ func (c *Client) writePump() {
     for {
         select {
         case message, ok := <-c.send:
+            log.Printf("WRITING: %s\n", message);
             c.conn.SetWriteDeadline(time.Now().Add(writeWait))
             if !ok {
                 c.conn.WriteMessage(websocket.CloseMessage, []byte{})
@@ -103,13 +106,9 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    log.Println("WHY U FKN LIYING")
     client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-    log.Println("DID YA STOP")
     client.hub.register <- client
-    log.Println("OKAY")
 
-    log.Println("SHOULD DO SMTH???")
     go client.writePump()
     go client.readPump()
 }

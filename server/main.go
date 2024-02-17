@@ -5,19 +5,16 @@ import (
     "time"
     "net/http"
     "multiplayer/network"
+    "multiplayer/game"
 )
 
-var game = network.Game {
-    Seq: []network.Coord{},
-    Current: 0,
-}
-
 func SetupRoutes() {
-    hub := network.NewHub()
-    go hub.Run()
-    fs := http.FileServer(http.Dir("./client"))
+    hub := network.NewHub() ; go hub.Run()
 
-    http.Handle("/", fs)
+    // hosting the client site
+    http.Handle("/", http.FileServer(http.Dir("./client")))
+
+    // managing websocket connections
     http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
         network.ServeWs(hub, w, r)
     })
@@ -26,12 +23,19 @@ func SetupRoutes() {
 func main() {
     SetupRoutes()
 
+    g := game.New()
+
+    log.Println(g)
+
+    addr := ":8080"
+
     server := &http.Server {
-        Addr:              ":8080",
+        Addr:              addr,
         ReadHeaderTimeout: 3 * time.Second,
     }
 
-    log.Println("Running on 8080")
+    log.Printf("Running on localhost%s\n", addr)
+
     err := server.ListenAndServe()
     if err != nil {
         log.Fatal("ListenAndServe: ", err)

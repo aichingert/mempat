@@ -1,29 +1,3 @@
-let socket = new WebSocket("ws://" + document.location.host + "/ws");
-
-console.log("Attempting Connection...");
-
-socket.onopen = () => {
-    console.log("Successfully Connected");
-    socket.send("Hi From the Client!")
-};
-
-socket.onclose = event => {
-    console.log("Socket Closed Connection: ", event);
-    socket.send("Client Closed!")
-};
-
-socket.onerror = error => { console.log("Socket Error: ", error); };
-
-socket.onmessage = function(evt) {
-    console.log(evt)
-
-    let div = document.createElement("div");
-    div.innerHTML = evt.data;
-
-    game.appendChild(div);
-    console.log(evt.data);
-}
-
 let game = document.getElementById("game");
 
 for (let i = 0; i < 4; i++) {
@@ -36,9 +10,9 @@ for (let i = 0; i < 4; i++) {
         square.classList.add("square")
 
         square.addEventListener("click", function() {
-            console.log(this.id);
-            socket.send(this.id);
-            this.style.backgroundColor = "rgb(195, 232, 141)";
+            if (this.style.backgroundColor != "rgb(195, 232, 141)") {
+                socket.send(this.id);
+            }
         });
 
         row.appendChild(square);
@@ -47,3 +21,24 @@ for (let i = 0; i < 4; i++) {
     game.append(row);
 }
 
+let socket = new WebSocket("ws://" + document.location.host + "/ws");
+
+console.log("Attempting Connection...");
+
+socket.onopen = () => {
+};
+
+socket.onerror = error => { console.log("Socket Error: ", error); };
+
+socket.onmessage = function(evt) {
+    console.log(evt)
+
+    let div = document.createElement("div");
+    let sq = document.getElementById(evt.data);
+    div.innerHTML = `${evt.data} ${sq.style.backgroundColor}`;
+
+    sq.style.backgroundColor = "rgb(195, 232, 141)";
+
+    game.appendChild(div);
+    console.log(evt.data);
+}
