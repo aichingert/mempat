@@ -7,7 +7,6 @@
     <title>mempat</title>
     <style>
         .game {
-            padding: 5%;
             display: grid;
             justify-self: horizontal;
             place-items: center;
@@ -15,7 +14,6 @@
 
         .square-row {
             display: flex;
-            margin: 10px;
         }
 
         .square {
@@ -26,16 +24,31 @@
         }
 
         .header {
+            font-size: 350%;
+            background: None;
             text-align: center;
+        }
+
+        .message {
+            font-size: 200%;
+            background: None;
+            text-align: center;
+            padding: 5%;
+        }
+
+        .restart {
+            display: flex;
+            justify-content: center;
+        }
+
+        @keyframes spin {
+            100% { transform:rotateX(180deg); }
+            from { background-color: rgb(195, 232, 141) }
+            to   { background-color: rgb(166, 172, 205) }
         }
 
         body {
             background: #292D3E;
-        }
-
-        span {
-            font-size: 350%;
-            background: None;
         }
     </style>
   </head>
@@ -46,7 +59,14 @@
           <span style="color: rgb(137, 221, 255)">/&gt;</span>
       </div>
 
+      <div id="state" class="message" style="visibility: hidden">
+          <span style="color: rgb(137, 221, 255)">&lt;</span>
+          <span style="color: rgb(195, 232, 141)">You lost</span>
+          <span style="color: rgb(137, 221, 255)">/&gt;</span>
+      </div>
+
       <div id="game" class="game"></div>
+
       <script src="index.js"></script>
   </body>
 </html>

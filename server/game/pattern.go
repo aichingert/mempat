@@ -1,7 +1,21 @@
 package game
 
+type state byte
+type Message byte
+
+const (
+    open        state = 0
+    closed      state = 1
+    attempted   state = 2
+
+    ValidOpen       Message = 0
+    InvalidOpen     Message = 1
+    GameOver        Message = 2
+    InvalidMessage  Message = 3
+)
+
 type Game struct {
-    board [][]bool
+    board [][]state
     pattern [][]bool
     mistakes byte
 }
@@ -9,39 +23,71 @@ type Game struct {
 var G = NewGame()
 
 func (g *Game) SendGame() []byte {
-    return generateMessageWithOpenFieldsAndPrefix([]byte("open:"), g.board)
+    msg := []byte("open:")
+
+    for i, matrix := range g.board {
+        for j, state := range matrix {
+            if state == closed || state == attempted {
+                if len(msg) > 5 {
+                    msg = append(msg, 44)
+                }
+
+                if state == closed {
+                    msg = append(msg, 121, byte(i) + 48, 32, byte(j) + 48)
+                } else {
+                    msg = append(msg, 110, byte(i) + 48, 32, byte(j) + 48)
+                }
+            }
+        }
+    }
+
+    return msg 
 }
 
 func (g *Game) RestartGame() []byte {
     G = NewGame()
-    return generateMessageWithOpenFieldsAndPrefix([]byte("new:"), g.pattern)
+
+    msg := []byte("new:")
+
+    for i, matrix := range g.pattern {
+        for j, isOpen := range matrix {
+            if isOpen {
+                if len(msg) > 5 {
+                    msg = append(msg, 44)
+                }
+                msg = append(msg, byte(i) + 48, 32, byte(j) + 48)
+            }
+        }
+    }
+
+    return msg
 }
 
-// TODO: maybe use an enum for return values
-func (g *Game) Open(message []byte) byte {
+func (g *Game) Open(message []byte) Message {
     if len(message) < 3 {
-        return 3 // invalid message
+        return InvalidMessage
     }
 
     y, x := message[0] - 48, message[2] - 48
 
     if !g.pattern[y][x] {
+        g.board[y][x] = attempted
         g.mistakes += 1
 
-        if g.mistakes >= 2 {
-            return 2 // game over
+        if g.mistakes >= 3 {
+            return GameOver
         }
 
-        return 1 // invalid open
+        return InvalidOpen
     }
 
-    g.board[y][x] = true
-    return 0 // valid open
+    g.board[y][x] = closed
+    return ValidOpen 
 }
 
 func NewGame() Game {
     game := Game {
-        board: [][]bool {{3: false}, {3: false}, {3: false}, {3: false}},
+        board: [][]state {{3: 0}, {3: 0}, {3: 0}, {3: 0}},
         pattern: generatePattern(),
         mistakes: 0,
     }
@@ -52,25 +98,8 @@ func NewGame() Game {
 func generatePattern() [][]bool {
     return [][]bool{
         {false,false,true,false},
-        {true,true,false,false},
+        {true,true,true,false},
         {false,false,true,false},
-        {false,false,false,false},
+        {true,false,false,false},
     }
-}
-
-func generateMessageWithOpenFieldsAndPrefix(prefix []byte, matrix [][]bool) []byte {
-    msg := prefix
-
-    for i, c := range matrix {
-        for j, _ := range c {
-            if c[j] {
-                if len(msg) > 5 {
-                    msg = append(msg, 44)
-                }
-                msg = append(msg, byte(i) + 48, 32, byte(j) + 48)
-            }
-        }
-    }
-
-    return msg
 }

@@ -1,6 +1,9 @@
 package network
 
-import "mempat/game"
+import (
+    "log"
+    "mempat/game"
+)
 
 type Hub struct {
     clients     map[*Client]bool
@@ -49,17 +52,17 @@ func generateMessage(position []byte) []byte {
     msg := []byte{}
 
     switch status := game.G.Open(position); status {
-    case 0:
+    case game.ValidOpen:
         //                  v,   a,   l,  :
         msg = append(msg, 118,  97, 108, 58)
         msg = append(msg, position...)
         break
-    case 1:
+    case game.InvalidOpen:
         //                  i,   n,   v,  :
         msg = append(msg, 105, 110, 118, 58)
         msg = append(msg, position...)
         break
-    case 2:
+    case game.GameOver:
         msg = append(msg, game.G.RestartGame()...)
         break
     default:
