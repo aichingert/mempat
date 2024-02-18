@@ -1,3 +1,6 @@
+const GREEN = "rgb(195, 232, 141)";
+const ERROR = "rgb(199, 146, 234)";
+
 let game = document.getElementById("game");
 
 for (let i = 0; i < 4; i++) {
@@ -10,7 +13,7 @@ for (let i = 0; i < 4; i++) {
         square.classList.add("square")
 
         square.addEventListener("click", function() {
-            if (this.style.backgroundColor != "rgb(195, 232, 141)") {
+            if (this.style.backgroundColor != GREEN) {
                 socket.send(this.id);
             }
         });
@@ -23,22 +26,30 @@ for (let i = 0; i < 4; i++) {
 
 let socket = new WebSocket("ws://" + document.location.host + "/ws");
 
-console.log("Attempting Connection...");
-
-socket.onopen = () => {
-};
-
 socket.onerror = error => { console.log("Socket Error: ", error); };
 
 socket.onmessage = function(evt) {
-    console.log(evt)
+    message = evt.data.split(':')
 
-    let div = document.createElement("div");
-    let sq = document.getElementById(evt.data);
-    div.innerHTML = `${evt.data} ${sq.style.backgroundColor}`;
+    if (message.length == 1) {
+        document.getElementById(evt.data).style.backgroundColor = GREEN;
+        return;
+    }
 
-    sq.style.backgroundColor = "rgb(195, 232, 141)";
+    switch (message[0]) {
+        case "open":
+            open = message[1].split(',').filter((e) => e !== "")
 
-    game.appendChild(div);
-    console.log(evt.data);
+            for (let i = 0; i < open.length; i++) {
+                document.getElementById(open[i]).style.backgroundColor = GREEN;
+            }
+
+            break;
+        case "val":
+        case "inv": 
+            document.getElementById(message[1]).style.backgroundColor = message[0] === "val" ? GREEN : ERROR;
+            break;
+        default:
+            console.log("message: ", message);
+    }
 }

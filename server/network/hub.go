@@ -1,9 +1,12 @@
 package network
 
-import "multiplayer/game"
+import (
+    "log"
+    //"strings"
+    "mempat/game"
+)
 
 type Hub struct {
-    game        chan game.Game
     clients     map[*Client]bool
     broadcast   chan []byte
 
@@ -13,7 +16,6 @@ type Hub struct {
 
 func NewHub() *Hub {
     return &Hub {
-        game:       make(chan game.Game),
         clients:    make(map[*Client]bool),
         broadcast:  make(chan []byte),
 
@@ -32,10 +34,28 @@ func (h *Hub) Run() {
                 delete(h.clients, client)
                 close(client.send)
             }
-        case message := <-h.broadcast:
+        case position := <-h.broadcast:
+            isValid := game.G.Open(position)
+
+            msg := []byte{}
+
+            // prefixes for valid and invalid
+            // used for the colors on the client
+            if isValid {
+                //                  v,   a,   l,  :
+                msg = append(msg, 118,  97, 108, 58)
+            } else {
+                //                  i,   n,   v,  :
+                msg = append(msg, 105, 110, 118, 58)
+            }
+
+            msg = append(msg, position...)
+
+            log.Println(msg)
+
             for client := range h.clients {
                 select {
-                case client.send <- message:
+                case client.send <- msg:
                 default:
                     close(client.send)
                     delete(h.clients, client)

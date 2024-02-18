@@ -1,4 +1,4 @@
-module multiplayer
+module mempat
 
 go 1.21.6
 

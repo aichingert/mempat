@@ -2,10 +2,10 @@ package network
 
 import (
     "net/http"
-    "bytes"
     "time"
     "log"
 
+    "mempat/game"
     "github.com/gorilla/websocket"
 )
 
@@ -14,11 +14,6 @@ const (
 	pongWait = 60 * time.Second
 	pingPeriod = (pongWait * 9) / 10
 	maxMessageSize = 512
-)
-
-var (
-	newline = []byte{'\n'}
-	space   = []byte{' '}
 )
 
 var upgrader = websocket.Upgrader {
@@ -51,9 +46,6 @@ func (c *Client) readPump() {
             break
         }
 
-        log.Println("READING: ", message);
-
-        message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
         c.hub.broadcast <- message
     }
 }
@@ -67,7 +59,6 @@ func (c *Client) writePump() {
     for {
         select {
         case message, ok := <-c.send:
-            log.Printf("WRITING: %s\n", message);
             c.conn.SetWriteDeadline(time.Now().Add(writeWait))
             if !ok {
                 c.conn.WriteMessage(websocket.CloseMessage, []byte{})
@@ -83,7 +74,6 @@ func (c *Client) writePump() {
 
             n := len(c.send)
             for i := 0; i < n; i++ {
-                w.Write(newline)
                 w.Write(<-c.send)
             }
 
@@ -107,6 +97,7 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
     }
 
     client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+    client.send <- game.G.SendGame()
     client.hub.register <- client
 
     go client.writePump()

@@ -4,15 +4,15 @@ import (
     "log"
     "time"
     "net/http"
-    "multiplayer/network"
-    "multiplayer/game"
+    "mempat/network"
+    "mempat/game"
 )
 
 func SetupRoutes() {
     hub := network.NewHub() ; go hub.Run()
 
     // hosting the client site
-    http.Handle("/", http.FileServer(http.Dir("./client")))
+    http.Handle("/", http.FileServer(http.Dir("../client")))
 
     // managing websocket connections
     http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
