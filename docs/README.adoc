@@ -5,7 +5,7 @@ concepts like go routines, channels, websockets and more.
 
 == What it looks like
 
-image::docs/preview.png[]
+image::preview.png[Preview]
 
 It is playable right now but there are still some proper messages for the user missing to know if he won lost
 or what happened in generell. The pattern has also to be implemented currently it is just hardcoded.
