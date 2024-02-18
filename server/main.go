@@ -5,7 +5,6 @@ import (
     "time"
     "net/http"
     "mempat/network"
-    "mempat/game"
 )
 
 func SetupRoutes() {
@@ -23,12 +22,7 @@ func SetupRoutes() {
 func main() {
     SetupRoutes()
 
-    g := game.New()
-
-    log.Println(g)
-
     addr := ":8080"
-
     server := &http.Server {
         Addr:              addr,
         ReadHeaderTimeout: 3 * time.Second,

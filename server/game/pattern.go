@@ -3,49 +3,50 @@ package game
 type Game struct {
     board [][]bool
     pattern [][]bool
+    mistakes byte
 }
 
-var G = New()
-
-func New() Game {
-    game := Game {
-        board: [][]bool {{3: false}, {3: false}, {3: false}, {3: false}},
-        pattern: generatePattern(),
-    }
-
-    return game
-}
+var G = NewGame()
 
 func (g *Game) SendGame() []byte {
-    board := []byte("open:")
-
-    for i, c := range g.board {
-        for j, _ := range c {
-            if c[j] {
-                if len(board) > 5 {
-                    board = append(board, 44)
-                }
-                board = append(board, byte(i) + 48, 32, byte(j) + 48)
-            }
-        }
-    }
-
-    return board
+    return generateMessageWithOpenFieldsAndPrefix([]byte("open:"), g.board)
 }
 
-func (g *Game) Open(message []byte) bool {
+func (g *Game) RestartGame() []byte {
+    G = NewGame()
+    return generateMessageWithOpenFieldsAndPrefix([]byte("new:"), g.pattern)
+}
+
+// TODO: maybe use an enum for return values
+func (g *Game) Open(message []byte) byte {
     if len(message) < 3 {
-        return false;
+        return 3 // invalid message
     }
 
     y, x := message[0] - 48, message[2] - 48
 
     if !g.pattern[y][x] {
-        return false;
+        g.mistakes += 1
+
+        if g.mistakes >= 2 {
+            return 2 // game over
+        }
+
+        return 1 // invalid open
     }
 
     g.board[y][x] = true
-    return true;
+    return 0 // valid open
+}
+
+func NewGame() Game {
+    game := Game {
+        board: [][]bool {{3: false}, {3: false}, {3: false}, {3: false}},
+        pattern: generatePattern(),
+        mistakes: 0,
+    }
+
+    return game
 }
 
 func generatePattern() [][]bool {
@@ -55,4 +56,21 @@ func generatePattern() [][]bool {
         {false,false,true,false},
         {false,false,false,false},
     }
+}
+
+func generateMessageWithOpenFieldsAndPrefix(prefix []byte, matrix [][]bool) []byte {
+    msg := prefix
+
+    for i, c := range matrix {
+        for j, _ := range c {
+            if c[j] {
+                if len(msg) > 5 {
+                    msg = append(msg, 44)
+                }
+                msg = append(msg, byte(i) + 48, 32, byte(j) + 48)
+            }
+        }
+    }
+
+    return msg
 }

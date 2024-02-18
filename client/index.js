@@ -1,5 +1,6 @@
+const GRAY  = "rgb(166, 172, 205)";
 const GREEN = "rgb(195, 232, 141)";
-const ERROR = "rgb(199, 146, 234)";
+const ERROR = "rgb(240, 113, 120)";
 
 let game = document.getElementById("game");
 
@@ -10,10 +11,11 @@ for (let i = 0; i < 4; i++) {
     for (let j = 0; j < 4; j++) {
         let square = document.createElement("div");
         square.id = `${i} ${j}`;
+        square.style.backgroundColor = GRAY;
         square.classList.add("square")
 
         square.addEventListener("click", function() {
-            if (this.style.backgroundColor != GREEN) {
+            if (this.style.backgroundColor === GRAY) {
                 socket.send(this.id);
             }
         });
@@ -44,6 +46,13 @@ socket.onmessage = function(evt) {
                 document.getElementById(open[i]).style.backgroundColor = GREEN;
             }
 
+            break;
+        case "new":
+            for (let row of game.children) {
+                for (let square of row.children) {
+                    square.style.backgroundColor = GRAY;
+                }
+            }
             break;
         case "val":
         case "inv": 

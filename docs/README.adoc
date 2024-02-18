@@ -1,11 +1,11 @@
-=  μοτίβα (pattern)
+= mempat 
 
-This is a simple websocket written in go to play a pattern memorization game with friends.
+This is a simple game written in go using websockets and was just created to get familiar with different go 
+concepts like go routines, channels, websockets and more.
 
-== Missing
+== What it looks like
 
-Currently the game has to be implemented on the server and then the following options are also missing:
+image::docs/preview.png[]
 
-* Restart on lose or win
-* Showing the pattern on the start of a new round or new connection maybe (but this could be abused)
-* Proper message sending between client and server
+It is playable right now but there are still some proper messages for the user missing to know if he won lost
+or what happened in generell. The pattern has also to be implemented currently it is just hardcoded.

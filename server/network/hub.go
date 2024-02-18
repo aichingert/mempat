@@ -1,10 +1,6 @@
 package network
 
-import (
-    "log"
-    //"strings"
-    "mempat/game"
-)
+import "mempat/game"
 
 type Hub struct {
     clients     map[*Client]bool
@@ -35,23 +31,7 @@ func (h *Hub) Run() {
                 close(client.send)
             }
         case position := <-h.broadcast:
-            isValid := game.G.Open(position)
-
-            msg := []byte{}
-
-            // prefixes for valid and invalid
-            // used for the colors on the client
-            if isValid {
-                //                  v,   a,   l,  :
-                msg = append(msg, 118,  97, 108, 58)
-            } else {
-                //                  i,   n,   v,  :
-                msg = append(msg, 105, 110, 118, 58)
-            }
-
-            msg = append(msg, position...)
-
-            log.Println(msg)
+            msg := generateMessage(position)
 
             for client := range h.clients {
                 select {
@@ -63,4 +43,29 @@ func (h *Hub) Run() {
             }
         }
     }
+}
+
+func generateMessage(position []byte) []byte {
+    msg := []byte{}
+
+    switch status := game.G.Open(position); status {
+    case 0:
+        //                  v,   a,   l,  :
+        msg = append(msg, 118,  97, 108, 58)
+        msg = append(msg, position...)
+        break
+    case 1:
+        //                  i,   n,   v,  :
+        msg = append(msg, 105, 110, 118, 58)
+        msg = append(msg, position...)
+        break
+    case 2:
+        msg = append(msg, game.G.RestartGame()...)
+        break
+    default:
+        log.Println(status)
+        break
+    }
+
+    return msg
 }
