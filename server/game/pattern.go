@@ -1,5 +1,7 @@
 package game
 
+import "math/rand/v2"
+
 type state byte
 type Message byte
 
@@ -12,8 +14,6 @@ const (
     InvalidOpen     Message = 1
     GameOver        Message = 2
     InvalidMessage  Message = 3
-
-    BOARD_SIZE      byte    = 5
 )
 
 type Game struct {
@@ -22,7 +22,10 @@ type Game struct {
     mistakes byte
 }
 
-var G = NewGame(BOARD_SIZE)
+var G = NewGame(size)
+
+var size  = 5
+var locations = []int{}
 
 func (g *Game) SendGame() []byte {
     msg := []byte("open:")
@@ -47,7 +50,7 @@ func (g *Game) SendGame() []byte {
 }
 
 func (g *Game) RestartGame() []byte {
-    G = NewGame(BOARD_SIZE)
+    G = NewGame(size)
 
     msg := []byte("new:")
 
@@ -87,13 +90,17 @@ func (g *Game) Open(message []byte) Message {
     return ValidOpen 
 }
 
-func NewGame(size byte) Game {
+func NewGame(size int) Game {
     board := make([][]state, size)
     pattern := make([][]bool, size)
 
     for i := range board {
         board[i] = make([]state, size)
         pattern[i] = make([]bool, size)
+    }
+
+    for i := len(locations); i < size * size; i++ {
+        locations = append(locations, i)
     }
 
     game := Game {
@@ -108,5 +115,30 @@ func NewGame(size byte) Game {
 }
 
 func (g *Game) generatePattern() {
-    g.pattern[0][0] = true
+    dropped := []int{}
+
+    for range 8 + rand.IntN(2) {
+        loc := rand.IntN(len(locations))
+        val := drop(loc)
+
+        y := val / size 
+        x := val - size * y
+
+        g.pattern[y][x] = true
+        dropped = append(dropped, val)
+    }
+
+    for _, val := range dropped {
+        locations = append(locations, val)
+    }
+}
+
+func drop(loc int) int {
+    element := locations[loc]
+
+    locations[loc] = locations[len(locations)-1]
+    locations[len(locations)-1] = 0
+    locations = locations[:len(locations)-1]
+
+    return element
 }
