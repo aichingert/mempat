@@ -12,6 +12,8 @@ const (
     InvalidOpen     Message = 1
     GameOver        Message = 2
     InvalidMessage  Message = 3
+
+    BOARD_SIZE      byte    = 5
 )
 
 type Game struct {
@@ -20,7 +22,7 @@ type Game struct {
     mistakes byte
 }
 
-var G = NewGame()
+var G = NewGame(BOARD_SIZE)
 
 func (g *Game) SendGame() []byte {
     msg := []byte("open:")
@@ -45,7 +47,7 @@ func (g *Game) SendGame() []byte {
 }
 
 func (g *Game) RestartGame() []byte {
-    G = NewGame()
+    G = NewGame(BOARD_SIZE)
 
     msg := []byte("new:")
 
@@ -85,21 +87,26 @@ func (g *Game) Open(message []byte) Message {
     return ValidOpen 
 }
 
-func NewGame() Game {
+func NewGame(size byte) Game {
+    board := make([][]state, size)
+    pattern := make([][]bool, size)
+
+    for i := range board {
+        board[i] = make([]state, size)
+        pattern[i] = make([]bool, size)
+    }
+
     game := Game {
-        board: [][]state {{3: 0}, {3: 0}, {3: 0}, {3: 0}},
-        pattern: generatePattern(),
+        board: board,
+        pattern: pattern,
         mistakes: 0,
     }
+
+    game.generatePattern()
 
     return game
 }
 
-func generatePattern() [][]bool {
-    return [][]bool{
-        {false,false,true,false},
-        {true,true,true,false},
-        {false,false,true,false},
-        {true,false,false,false},
-    }
+func (g *Game) generatePattern() {
+    g.pattern[0][0] = true
 }

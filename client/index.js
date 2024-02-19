@@ -2,13 +2,16 @@ const GRAY  = "rgb(166, 172, 205)";
 const GREEN = "rgb(195, 232, 141)";
 const RED = "rgb(240, 113, 120)";
 
+const ROWS = 5;
+const COLS = 5;
+
 let game = document.getElementById("game");
 
-for (let i = 0; i < 4; i++) {
+for (let i = 0; i < ROWS; i++) {
     let row = document.createElement("div");
     row.classList.add("square-row");
 
-    for (let j = 0; j < 4; j++) {
+    for (let j = 0; j < COLS; j++) {
         let square = document.createElement("div");
         square.id = `${i} ${j}`;
         square.style.backgroundColor = GRAY;
@@ -57,7 +60,10 @@ socket.onmessage = function(evt) {
             open = message[1].split(',').filter((e) => e !== "")
 
             for (let i = 0; i < open.length; i++) {
-                document.getElementById(open[i]).style.animation="spin 2s ease";
+                let square = document.getElementById(open[i]);
+
+                square.classList.add("restart");
+                setTimeout(() => { square.classList.remove("restart"); }, 3000);
             }
 
             break;
