@@ -1,6 +1,6 @@
 const GRAY  = "rgb(166, 172, 205)";
 const GREEN = "rgb(195, 232, 141)";
-const RED = "rgb(240, 113, 120)";
+const RED   = "rgb(240, 113, 120)";
 
 const ROWS = 5;
 const COLS = 5;
@@ -18,7 +18,7 @@ for (let i = 0; i < ROWS; i++) {
         square.classList.add("square")
 
         square.addEventListener("click", function() {
-            if (this.style.backgroundColor === GRAY) {
+            if (!blockSend && this.style.backgroundColor === GRAY) {
                 socket.send(this.id);
             }
         });
@@ -30,6 +30,7 @@ for (let i = 0; i < ROWS; i++) {
 }
 
 let socket = new WebSocket("ws://" + document.location.host + "/ws");
+let blockSend = false;
 
 socket.onerror = error => { console.log("Socket Error: ", error); };
 
@@ -54,22 +55,29 @@ socket.onmessage = function(evt) {
             for (let row of game.children) {
                 for (let square of row.children) {
                     square.style.backgroundColor = GRAY;
+                    square.classList.remove("flip");
                 }
             }
 
-            open = message[1].split(',').filter((e) => e !== "")
+            blockSend = true;
+            open = message[1].split(',').filter((e) => e !== "");
 
             for (let i = 0; i < open.length; i++) {
                 let square = document.getElementById(open[i]);
 
-                square.classList.add("restart");
-                setTimeout(() => { square.classList.remove("restart"); }, 3000);
+                square.classList.add("preview");
+                setTimeout(() => { 
+                    square.classList.remove("preview"); 
+                    blockSend = false;
+                }, 1250);
             }
 
             break;
         case "val":
         case "inv": 
-            document.getElementById(message[1]).style.backgroundColor = message[0] === "val" ? GREEN : RED;
+            let square = document.getElementById(message[1]);
+            square.style.backgroundColor = message[0] === "val" ? GREEN : RED;
+            square.classList.add("flip");
             break;
         default:
             console.log("message: ", message);

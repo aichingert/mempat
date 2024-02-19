@@ -36,14 +36,30 @@
                 padding: 2%;
             }
 
-            .restart {
-                animation: spin 3s ease;
+            .preview {
+                animation: showColor .25s linear forwards, showDefault 0.25s linear 1s forwards;
             }
 
-            @keyframes spin {
+            .flip {
+                animation: flip .25s linear;
+            }
+
+            @keyframes showDefault {
+                100% {
+                    transform:rotateX(360deg); 
+                    background-color: rgb(166, 172, 205);
+                }
+            }
+
+            @keyframes showColor {
+                100% { 
+                    transform:rotateX(180deg); 
+                    background-color: rgb(195, 232, 141);
+                }
+            }
+
+            @keyframes flip {
                 100% { transform:rotateX(180deg); }
-                from { background-color: rgb(195, 232, 141) }
-                to   { background-color: rgb(166, 172, 205) }
             }
 
             body {
