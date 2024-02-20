@@ -30,8 +30,8 @@ type Game struct {
 
 var G = NewGame(size)
 
-var size  = 5
-var locations = []int{}
+var size        = 5
+var locations   = []int{}
 
 func (g *Game) SendGame(max int, streak int) []byte {
     msg := []byte("open:")

@@ -5,7 +5,22 @@ concepts like go routines, channels, websockets and more.
 
 == What it looks like
 
-image::preview.png[Preview]
+you can press the tiles and they turn around revealing wether they were corrent or not.
 
-It is playable right now but there are still some proper messages for the user missing to know if he won lost
-or what happened in generell. The pattern has also to be implemented currently it is just hardcoded.
+image::playing.png[Playing]
+
+when you lost it shows you what would have been correct instead.
+
+image::losing.png[Losing]
+
+== How to run
+
+you need to install go with the version 1.22 after that you can just redirect to the server folder and start it.
+
+[source, sh]
+----
+cd server
+go run .
+----
+
+after doing that it is accessible on localhost:8080
