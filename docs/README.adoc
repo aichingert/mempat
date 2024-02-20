@@ -5,7 +5,7 @@ concepts like go routines, channels, websockets and more.
 
 == What it looks like
 
-you can press the tiles and they turn around revealing wether they were corrent or not.
+you can press the tiles and they turn around revealing wether they were correct or not.
 
 image::playing.png[Playing]
 
