@@ -6,6 +6,8 @@ import (
 )
 
 type Hub struct {
+    max         int
+    streak      int
     clients     map[*Client]bool
     broadcast   chan []byte
 
@@ -15,6 +17,8 @@ type Hub struct {
 
 func NewHub() *Hub {
     return &Hub {
+        max:        0,
+        streak:     0,
         clients:    make(map[*Client]bool),
         broadcast:  make(chan []byte),
 
@@ -34,7 +38,7 @@ func (h *Hub) Run() {
                 close(client.send)
             }
         case position := <-h.broadcast:
-            msg := generateMessage(position)
+            msg := h.generateMessage(position)
 
             for client := range h.clients {
                 select {
@@ -48,7 +52,7 @@ func (h *Hub) Run() {
     }
 }
 
-func generateMessage(position []byte) []byte {
+func (h *Hub) generateMessage(position []byte) []byte {
     msg := []byte{}
 
     switch status := game.G.Open(position); status {
@@ -56,18 +60,20 @@ func generateMessage(position []byte) []byte {
         //                  v,   a,   l,  :
         msg = append(msg, 118,  97, 108, 58)
         msg = append(msg, position...)
-        break
     case game.InvalidOpen:
         //                  i,   n,   v,  :
         msg = append(msg, 105, 110, 118, 58)
         msg = append(msg, position...)
-        break
+    case game.GameWon:
+        h.streak += 1
+        h.max = max(h.streak, h.max)
+
+        msg = append(msg, game.G.RestartGame(true, h.max, h.streak)...)
     case game.GameOver:
-        msg = append(msg, game.G.RestartGame()...)
-        break
+        h.streak = 0
+        msg = append(msg, game.G.RestartGame(false, h.max, h.streak)...)
     default:
-        log.Println(status)
-        break
+        log.Println("ERROR: ", status)
     }
 
     return msg

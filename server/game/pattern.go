@@ -1,6 +1,9 @@
 package game
 
-import "math/rand/v2"
+import (
+    "strconv"
+    "math/rand/v2"
+)
 
 type state byte
 type Message byte
@@ -12,14 +15,17 @@ const (
 
     ValidOpen       Message = 0
     InvalidOpen     Message = 1
-    GameOver        Message = 2
-    InvalidMessage  Message = 3
+    GameWon         Message = 2
+    GameOver        Message = 3
+    InvalidMessage  Message = 4
 )
 
 type Game struct {
-    board [][]state
-    pattern [][]bool
-    mistakes byte
+    board       [][]state
+    pattern     [][]bool
+    mistakes    byte
+    closed      byte
+    tiles       byte
 }
 
 var G = NewGame(size)
@@ -27,20 +33,20 @@ var G = NewGame(size)
 var size  = 5
 var locations = []int{}
 
-func (g *Game) SendGame() []byte {
+func (g *Game) SendGame(max int, streak int) []byte {
     msg := []byte("open:")
+
+    msg = append(msg, []byte(strconv.Itoa(max))...)
+    msg = append(msg, 32)
+    msg = append(msg, []byte(strconv.Itoa(streak))...)
 
     for i, matrix := range g.board {
         for j, state := range matrix {
             if state == closed || state == attempted {
-                if len(msg) > 5 {
-                    msg = append(msg, 44)
-                }
-
                 if state == closed {
-                    msg = append(msg, 121, byte(i) + 48, 32, byte(j) + 48)
+                    msg = append(msg, 44, 121, byte(i) + 48, 32, byte(j) + 48)
                 } else {
-                    msg = append(msg, 110, byte(i) + 48, 32, byte(j) + 48)
+                    msg = append(msg, 44, 110, byte(i) + 48, 32, byte(j) + 48)
                 }
             }
         }
@@ -49,18 +55,24 @@ func (g *Game) SendGame() []byte {
     return msg 
 }
 
-func (g *Game) RestartGame() []byte {
+func (g *Game) RestartGame(won bool, max int, streak int) []byte {
     G = NewGame(size)
+    msg := []byte{}
+    
+    if won {
+        msg = append(msg, []byte("won:")...)
+    } else {
+        msg = append(msg, []byte("new:")...)
+    }
 
-    msg := []byte("new:")
+    msg = append(msg, []byte(strconv.Itoa(max))...)
+    msg = append(msg, 32)
+    msg = append(msg, []byte(strconv.Itoa(streak))...)
 
     for i, matrix := range g.pattern {
         for j, isOpen := range matrix {
             if isOpen {
-                if len(msg) > 5 {
-                    msg = append(msg, 44)
-                }
-                msg = append(msg, byte(i) + 48, 32, byte(j) + 48)
+                msg = append(msg, 44, byte(i) + 48, 32, byte(j) + 48)
             }
         }
     }
@@ -87,7 +99,13 @@ func (g *Game) Open(message []byte) Message {
     }
 
     g.board[y][x] = closed
-    return ValidOpen 
+    g.closed += 1
+
+    if g.closed == g.tiles {
+        return GameWon
+    } else {
+        return ValidOpen
+    }
 }
 
 func NewGame(size int) Game {
@@ -104,20 +122,23 @@ func NewGame(size int) Game {
     }
 
     game := Game {
-        board: board,
-        pattern: pattern,
-        mistakes: 0,
+        board:      board,
+        pattern:    pattern,
+        mistakes:   0,
+        closed:     0,
+        tiles:      0,
     }
 
-    game.generatePattern()
+    game.tiles = game.generatePattern()
 
     return game
 }
 
-func (g *Game) generatePattern() {
+func (g *Game) generatePattern() byte {
+    tiles := byte(8 + rand.IntN(2))
     dropped := []int{}
 
-    for range 8 + rand.IntN(2) {
+    for range tiles {
         loc := rand.IntN(len(locations))
         val := drop(loc)
 
@@ -131,6 +152,8 @@ func (g *Game) generatePattern() {
     for _, val := range dropped {
         locations = append(locations, val)
     }
+
+    return tiles
 }
 
 func drop(loc int) int {
