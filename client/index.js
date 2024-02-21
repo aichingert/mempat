@@ -6,6 +6,7 @@ const PURPLE= "rgb(199, 146, 234)";
 const SIZE = 5;
 
 let game = document.getElementById("game");
+let blockSend = false;
 
 for (let i = 0; i < SIZE; i++) {
     let row = document.createElement("div");
@@ -18,8 +19,6 @@ for (let i = 0; i < SIZE; i++) {
         square.classList.add("square")
 
         square.addEventListener("click", function() {
-            console.log(this);
-            console.log(blockSend);
             if (!blockSend && this.style.backgroundColor === GRAY) {
                 socket.send(this.id);
             }
@@ -33,7 +32,6 @@ for (let i = 0; i < SIZE; i++) {
 
 let socket = new WebSocket("ws://" + document.location.host + "/ws");
 let previous = [];
-let blockSend = false;
 
 function setMaxAndStreak(message) {
     values = message[0].split(' ');
