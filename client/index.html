@@ -15,19 +15,38 @@
                 display: flex;
             }
 
-            .square {
-                display: flex;
-                margin: 10px;
-                width: 100px;
-                height: 100px;
-                border-radius: 15px;
+            @media only screen and (min-width: 768px) {
+                .square {
+                    display: flex;
+                    margin: 10px;
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 15px;
+                }
+
+                .header {
+                    padding: 2%;
+                    font-size: 350%;
+                    background: None;
+                    text-align: center;
+                }
             }
 
-            .header {
-                padding: 2%;
-                font-size: 350%;
-                background: None;
-                text-align: center;
+            @media only screen and (max-width: 600px) {
+                .square {
+                    display: flex;
+                    margin: 5px;
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 15px;
+                }
+
+                .header {
+                    padding: 5%;
+                    font-size: 150%;
+                    background: None;
+                    text-align: center;
+                }
             }
 
             .preview {
