@@ -34,18 +34,35 @@
                 
             }
 
-            @media only screen and (max-width: 600px) {
+            @media only screen and (max-width: 768px) {
                 .square {
                     display: flex;
-                    margin: 5px;
-                    width: 75px;
-                    height: 75px;
+                    margin: 4px;
+                    width: 60px;
+                    height: 60px;
                     border-radius: 15px;
                 }
 
                 .header {
                     padding: 5%;
-                    font-size: 200%;
+                    font-size: 182%;
+                    background: None;
+                    text-align: center;
+                }
+            }
+
+            @media only screen and (max-width: 349px) {
+                .square {
+                    display: flex;
+                    margin: 4px;
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 15px;
+                }
+
+                .header {
+                    padding: 5%;
+                    font-size: 152%;
                     background: None;
                     text-align: center;
                 }
@@ -53,6 +70,11 @@
 
             .stats {
                 color: rgb(195, 232, 141); 
+                font-size: 70%
+            }
+
+            .number {
+                color: rgb(137, 221, 255);
                 font-size: 70%
             }
 
@@ -93,9 +115,9 @@
             <span style="color: rgb(240, 113, 120)">μοτίβα</span>
 
             <span class="stats">streak = </span>
-            <span id="streak" class="stats">0</span>
+            <span id="streak" class="number">0</span>
             <span class="stats">max = </span>
-            <span id="max" class="stats">0</span>
+            <span id="max" class="number">0</span>
 
             <span style="color: rgb(137, 221, 255)">/&gt;</span>
         </div>
