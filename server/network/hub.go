@@ -55,7 +55,7 @@ func (h *Hub) Run() {
 func (h *Hub) generateMessage(position []byte) []byte {
     msg := []byte{}
 
-    switch status := game.G.Open(position); status {
+    switch status := game.SG.Open(position); status {
     case game.ValidOpen:
         //                  v,   a,   l,  :
         msg = append(msg, 118,  97, 108, 58)
@@ -68,10 +68,10 @@ func (h *Hub) generateMessage(position []byte) []byte {
         h.streak += 1
         h.max = max(h.streak, h.max)
 
-        msg = append(msg, game.G.RestartGame(true, h.max, h.streak)...)
+        msg = append(msg, game.SG.RestartGame(true, h.max, h.streak)...)
     case game.GameOver:
         h.streak = 0
-        msg = append(msg, game.G.RestartGame(false, h.max, h.streak)...)
+        msg = append(msg, game.SG.RestartGame(false, h.max, h.streak)...)
     default:
         log.Println("ERROR: ", status)
     }

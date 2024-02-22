@@ -1,6 +1,7 @@
 package game
 
 import (
+    "sync"
     "strconv"
     "math/rand/v2"
 )
@@ -20,7 +21,7 @@ const (
     InvalidMessage  Message = 4
 )
 
-type Game struct {
+type game struct {
     board       [][]state
     pattern     [][]bool
     mistakes    byte
@@ -28,19 +29,26 @@ type Game struct {
     tiles       byte
 }
 
-var G = NewGame(size)
+type SafeGame struct {
+    mu      sync.Mutex
+    wrapped game
+}
+
+var SG = SafeGame {
+    wrapped: newGame(size),
+}
 
 var size        = 5
 var locations   = []int{}
 
-func (g *Game) SendGame(max int, streak int) []byte {
+func (s *SafeGame) SendGame(max int, streak int) []byte {
     msg := []byte("open:")
 
     msg = append(msg, []byte(strconv.Itoa(max))...)
     msg = append(msg, 32)
     msg = append(msg, []byte(strconv.Itoa(streak))...)
 
-    for i, matrix := range g.board {
+    for i, matrix := range s.wrapped.board {
         for j, state := range matrix {
             if state == closed || state == attempted {
                 if state == closed {
@@ -55,8 +63,10 @@ func (g *Game) SendGame(max int, streak int) []byte {
     return msg 
 }
 
-func (g *Game) RestartGame(won bool, max int, streak int) []byte {
-    G = NewGame(size)
+func (s *SafeGame) RestartGame(won bool, max int, streak int) []byte {
+    s.mu.Lock()
+    s.wrapped = newGame(size)
+
     msg := []byte{}
     
     if won {
@@ -69,7 +79,7 @@ func (g *Game) RestartGame(won bool, max int, streak int) []byte {
     msg = append(msg, 32)
     msg = append(msg, []byte(strconv.Itoa(streak))...)
 
-    for i, matrix := range g.pattern {
+    for i, matrix := range s.wrapped.pattern {
         for j, isOpen := range matrix {
             if isOpen {
                 msg = append(msg, 44, byte(i) + 48, 32, byte(j) + 48)
@@ -77,38 +87,43 @@ func (g *Game) RestartGame(won bool, max int, streak int) []byte {
         }
     }
 
+    s.mu.Unlock()
     return msg
 }
 
-func (g *Game) Open(message []byte) Message {
+func (s *SafeGame) Open(message []byte) Message {
     if len(message) < 3 {
         return InvalidMessage
     }
 
+    s.mu.Lock()
+
     y, x := message[0] - 48, message[2] - 48
 
-    if !g.pattern[y][x] {
-        g.board[y][x] = attempted
-        g.mistakes += 1
+    if !s.wrapped.pattern[y][x] {
+        s.wrapped.board[y][x] = attempted
+        s.wrapped.mistakes += 1
 
-        if g.mistakes >= 3 {
+        s.mu.Unlock()
+        if s.wrapped.mistakes >= 3 {
             return GameOver
         }
 
         return InvalidOpen
     }
 
-    g.board[y][x] = closed
-    g.closed += 1
+    s.wrapped.board[y][x] = closed
+    s.wrapped.closed += 1
 
-    if g.closed == g.tiles {
+    s.mu.Unlock()
+    if s.wrapped.closed == s.wrapped.tiles {
         return GameWon
     } else {
         return ValidOpen
     }
 }
 
-func NewGame(size int) Game {
+func newGame(size int) game {
     board := make([][]state, size)
     pattern := make([][]bool, size)
 
@@ -121,7 +136,7 @@ func NewGame(size int) Game {
         locations = append(locations, i)
     }
 
-    game := Game {
+    game := game {
         board:      board,
         pattern:    pattern,
         mistakes:   0,
@@ -134,7 +149,7 @@ func NewGame(size int) Game {
     return game
 }
 
-func (g *Game) generatePattern() byte {
+func (g *game) generatePattern() byte {
     tiles := byte(8 + rand.IntN(2))
     dropped := []int{}
 

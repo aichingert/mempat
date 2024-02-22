@@ -97,7 +97,7 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
     }
 
     client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-    client.send <- game.G.SendGame(hub.max, hub.streak)
+    client.send <- game.SG.SendGame(hub.max, hub.streak)
     client.hub.register <- client
 
     go client.writePump()
