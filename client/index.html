@@ -30,23 +30,30 @@
                     background: None;
                     text-align: center;
                 }
+
+                
             }
 
             @media only screen and (max-width: 600px) {
                 .square {
                     display: flex;
                     margin: 5px;
-                    width: 50px;
-                    height: 50px;
+                    width: 75px;
+                    height: 75px;
                     border-radius: 15px;
                 }
 
                 .header {
                     padding: 5%;
-                    font-size: 150%;
+                    font-size: 200%;
                     background: None;
                     text-align: center;
                 }
+            }
+
+            .stats {
+                color: rgb(195, 232, 141); 
+                font-size: 70%
             }
 
             .preview {
@@ -85,10 +92,10 @@
             <span style="color: rgb(137, 221, 255)">&lt;</span>
             <span style="color: rgb(240, 113, 120)">μοτίβα</span>
 
-            <span style="color: rgb(195, 232, 141); font-size: 70%">streak = </span>
-            <span id="streak" style="color: rgb(137, 221, 255); font-size: 70%">0</span>
-            <span style="color: rgb(195, 232, 141); font-size: 70%">max = </span>
-            <span id="max" style="color: rgb(137, 221, 255); font-size: 70%">0</span>
+            <span class="stats">streak = </span>
+            <span id="streak" class="stats">0</span>
+            <span class="stats">max = </span>
+            <span id="max" class="stats">0</span>
 
             <span style="color: rgb(137, 221, 255)">/&gt;</span>
         </div>
