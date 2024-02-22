@@ -6,10 +6,18 @@ import (
     "mempat/game"
 )
 
+type SafeBuffer struct {
+    mu          sync.Mutex
+    msg         []byte
+}
+
+var SB = SafeBuffer {
+    msg:        []byte{},
+}
+
 type Hub struct {
     max         int
     streak      int
-    mu          sync.Mutex
     clients     map[*Client]bool
     broadcast   chan []byte
 
@@ -40,45 +48,44 @@ func (h *Hub) Run() {
                 close(client.send)
             }
         case position := <-h.broadcast:
-            msg := h.generateMessage(position)
+            SB.mu.Lock()
+            h.generateMessage(position)
 
             for client := range h.clients {
                 select {
-                case client.send <- msg:
+                case client.send <- SB.msg:
                 default:
                     close(client.send)
                     delete(h.clients, client)
                 }
             }
+
+            SB.mu.Unlock()
         }
     }
 }
 
-func (h *Hub) generateMessage(position []byte) []byte {
-    h.mu.Lock()
-    defer h.mu.Unlock()
-    msg := []byte{}
+func (h *Hub) generateMessage(position []byte) {
+    SB.msg = []byte{}
 
     switch status := game.SG.Open(position); status {
     case game.ValidOpen:
         //                  v,   a,   l,  :
-        msg = append(msg, 118,  97, 108, 58)
-        msg = append(msg, position...)
+        SB.msg = append(SB.msg, 118,  97, 108, 58)
+        SB.msg = append(SB.msg, position...)
     case game.InvalidOpen:
         //                  i,   n,   v,  :
-        msg = append(msg, 105, 110, 118, 58)
-        msg = append(msg, position...)
+        SB.msg = append(SB.msg, 105, 110, 118, 58)
+        SB.msg = append(SB.msg, position...)
     case game.GameWon:
         h.streak += 1
         h.max = max(h.streak, h.max)
 
-        msg = append(msg, game.SG.RestartGame(true, h.max, h.streak)...)
+        SB.msg = append(SB.msg, game.SG.RestartGame(true, h.max, h.streak)...)
     case game.GameOver:
         h.streak = 0
-        msg = append(msg, game.SG.RestartGame(false, h.max, h.streak)...)
+        SB.msg = append(SB.msg, game.SG.RestartGame(false, h.max, h.streak)...)
     default:
         log.Println("ERROR: ", status)
     }
-
-    return msg
 }
