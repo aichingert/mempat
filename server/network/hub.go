@@ -2,12 +2,14 @@ package network
 
 import (
     "log"
+    "sync"
     "mempat/game"
 )
 
 type Hub struct {
     max         int
     streak      int
+    mu          sync.Mutex
     clients     map[*Client]bool
     broadcast   chan []byte
 
@@ -53,6 +55,8 @@ func (h *Hub) Run() {
 }
 
 func (h *Hub) generateMessage(position []byte) []byte {
+    h.mu.Lock()
+    defer h.mu.Unlock()
     msg := []byte{}
 
     switch status := game.SG.Open(position); status {

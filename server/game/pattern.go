@@ -92,11 +92,12 @@ func (s *SafeGame) RestartGame(won bool, max int, streak int) []byte {
 }
 
 func (s *SafeGame) Open(message []byte) Message {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+
     if len(message) < 3 {
         return InvalidMessage
     }
-
-    s.mu.Lock()
 
     y, x := message[0] - 48, message[2] - 48
 
@@ -104,7 +105,6 @@ func (s *SafeGame) Open(message []byte) Message {
         s.wrapped.board[y][x] = attempted
         s.wrapped.mistakes += 1
 
-        s.mu.Unlock()
         if s.wrapped.mistakes >= 3 {
             return GameOver
         }
@@ -115,7 +115,6 @@ func (s *SafeGame) Open(message []byte) Message {
     s.wrapped.board[y][x] = closed
     s.wrapped.closed += 1
 
-    s.mu.Unlock()
     if s.wrapped.closed == s.wrapped.tiles {
         return GameWon
     } else {
