@@ -13,11 +13,11 @@ concepts like go routines, channels, websockets and more.
 
 you can press the tiles and they turn around revealing wether they were correct or not.
 
-image::playing.png[Playing, 200, 200, align="center"]
+image::playing.png[Playing, 650, 650, align="center"]
 
 when you lost it shows you what would have been correct instead.
 
-image::losing.png[Losing, 200, 200, align="center"]
+image::losing.png[Losing, 650, 650, align="center"]
 
 == How to run
 
