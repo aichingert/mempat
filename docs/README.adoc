@@ -1,4 +1,10 @@
-= mempat 
+= mempat
+:toc: left
+:sectnums:
+:toclevels: 3
+:table-caption:
+:linkattrs:
+:experimental:
 
 This is a simple game written in go using websockets and was just created to get familiar with different go 
 concepts like go routines, channels, websockets and more.
@@ -7,11 +13,11 @@ concepts like go routines, channels, websockets and more.
 
 you can press the tiles and they turn around revealing wether they were correct or not.
 
-image::playing.png[Playing]
+image::playing.png[Playing, 200, 200, align="center"]
 
 when you lost it shows you what would have been correct instead.
 
-image::losing.png[Losing]
+image::losing.png[Losing, 200, 200, align="center"]
 
 == How to run
 
